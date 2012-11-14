@@ -18,8 +18,8 @@ public class MemoriaCondivisaSem extends MemoriaCondivisa {
 
 	public void inizioLettura() throws InterruptedException {
 		mutex.acquire();
+		if (numLettori == 0) scrittura.acquire();
 		numLettori++;
-		if (numLettori == 1) scrittura.acquire();
 		System.out.println("Thread " + Thread.currentThread().getId() + " inizia a leggere");
 		mutex.release();
 	}
