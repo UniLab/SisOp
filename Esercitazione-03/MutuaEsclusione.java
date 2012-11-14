@@ -12,21 +12,21 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.Random;
 
-class ThreadP1 extends Thread {
+class ThreadMutex1 extends Thread {
 	private static final int MAX = 100;
 	private static final int MIN = 80;
 	private Semaphore mutex;
 	private Random random = new Random();
-	public ThreadP1(Semaphore s) {
+	public ThreadMutex1(Semaphore s) {
 		mutex = s;
 	}
 	public void run() {
 		try {
 			attesaCasuale(MAX, MIN);
 			mutex.acquire();
-			System.out.println("Inizio operazioni thread P1");
+			System.out.println("Inizio operazioni thread t1");
 			System.out.println("A");
-			System.out.println("Fine operazioni thread P1");
+			System.out.println("Fine operazioni thread t1");
 			mutex.release();
 		} catch (InterruptedException e) {}
 	}
@@ -36,21 +36,21 @@ class ThreadP1 extends Thread {
 	}
 }
 
-class ThreadP2 extends Thread {
+class ThreadMutex2 extends Thread {
 	private static final int MAX = 100;
 	private static final int MIN = 80;
 	private Semaphore mutex;
 	private Random random = new Random();
-	public ThreadP2(Semaphore s) {
+	public ThreadMutex2(Semaphore s) {
 		mutex = s;
 	}
 	public void run() {
 		try {
 			attesaCasuale(MAX, MIN);
 			mutex.acquire();
-			System.out.println("Inizio operazioni thread P2");
+			System.out.println("Inizio operazioni thread t2");
 			System.out.println("B");
-			System.out.println("Fine operazioni thread P2");
+			System.out.println("Fine operazioni thread t2");
 			mutex.release();
 		} catch (InterruptedException e) {}
 	}
@@ -63,8 +63,8 @@ class ThreadP2 extends Thread {
 public class MutuaEsclusione {
 	public static void main(String[]args) {
 		Semaphore mutex = new Semaphore(1);
-		ThreadP1 p1 = new ThreadP1(mutex);
-		ThreadP2 p2 = new ThreadP2(mutex);
-		p1.start(); p2.start();
+		ThreadMutex1 t1 = new ThreadMutex1(mutex);
+		ThreadMutex2 t2 = new ThreadMutex2(mutex);
+		t1.start(); t2.start();
 	}
 }

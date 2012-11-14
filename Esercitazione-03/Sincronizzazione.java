@@ -12,20 +12,20 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.Random;
 
-class ThreadP1 extends Thread {
+class ThreadSync1 extends Thread {
 	private static final int MAX = 100;
 	private static final int MIN = 80;
 	private Semaphore mutex;
 	private Random random = new Random();
-	public ThreadP1(Semaphore s) {
+	public ThreadSync1(Semaphore s) {
 		mutex = s;
 	}
 	public void run() {
 		try {
 			attesaCasuale(MAX, MIN);
-			System.out.println("Inizio operazioni thread P1");
+			System.out.println("Inizio operazioni thread t1");
 			System.out.println("A");
-			System.out.println("Fine operazioni thread P1");
+			System.out.println("Fine operazioni thread t1");
 			mutex.release();
 		} catch (InterruptedException e) {}
 	}
@@ -35,21 +35,21 @@ class ThreadP1 extends Thread {
 	}
 }
 
-class ThreadP2 extends Thread {
+class ThreadSync2 extends Thread {
 	private static final int MAX = 100;
 	private static final int MIN = 80;
 	private Semaphore mutex;
 	private Random random = new Random();
-	public ThreadP2(Semaphore s) {
+	public ThreadSync2(Semaphore s) {
 		mutex = s;
 	}
 	public void run() {
 		try {
 			attesaCasuale(MAX, MIN);
 			mutex.acquire();
-			System.out.println("Inizio operazioni thread P2");
+			System.out.println("Inizio operazioni thread t2");
 			System.out.println("B");
-			System.out.println("Fine operazioni thread P2");
+			System.out.println("Fine operazioni thread t2");
 		} catch (InterruptedException e) {}
 	}
 
@@ -61,8 +61,8 @@ class ThreadP2 extends Thread {
 public class Sincronizzazione {
 	public static void main(String[]args) {
 		Semaphore mutex = new Semaphore(0);
-		ThreadP1 p1 = new ThreadP1(mutex);
-		ThreadP2 p2 = new ThreadP2(mutex);
-		p1.start(); p2.start();
+		ThreadSync1 t1 = new ThreadSync1(mutex);
+		ThreadSync2 t2 = new ThreadSync2(mutex);
+		t1.start(); t2.start();
 	}
 }
