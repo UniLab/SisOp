@@ -9,9 +9,11 @@ public class MemoriaCondivisaSem extends MemoriaCondivisa {
 	public void inizioScrittura() throws InterruptedException {
 		scrittura.acquire();
 		System.out.println("Thread " + Thread.currentThread().getId() + " inizia a scrivere");
+		System.out.println("\tNumero lettori: " + numLettori);
 	}
 
 	public void fineScrittura() throws InterruptedException {
+		System.out.println("\tNumero lettori: " + numLettori);
 		System.out.println("Thread " + Thread.currentThread().getId() + " finisce di scrivere");
 		scrittura.release();
 	}
@@ -30,7 +32,6 @@ public class MemoriaCondivisaSem extends MemoriaCondivisa {
 		System.out.println("Thread " + Thread.currentThread().getId() + " finisce di leggere");
 		if (numLettori == 0) scrittura.release();
 		mutex.release();
-
 	}
 
 	public static void main(String[]args) {
