@@ -14,23 +14,19 @@ public class MemoriaCondivisaSemAging extends MemoriaCondivisa {
 
 	Semaphore mutex = new Semaphore(1);
 	Semaphore scrittura = new Semaphore(1);
-	Semaphore waitLettori = new Semaphore(0, true);
-	Semaphore waitScrittori = new Semaphore(0, true);
+	Semaphore waitLettori = new Semaphore(0);
+
 	public static final int INITIAL_PRIORITY = 10;
-	public static final int MIN_PRIORITY = 0;
-	private int numLettori = 0,
-		ageLettori = INITIAL_PRIORITY, ageScrittori = INITIAL_PRIORITY,
-		lettoriInAttesa = 0, scrittoriInAttesa = 0;
+	public static final int MIN_PRIORITY = 1;
+	private int numLettori = 0, lettoriInAttesa = 0, ageLettori = INITIAL_PRIORITY;
+	private boolean scrittoreInAttesa = false;
 
 	public void inizioScrittura() throws InterruptedException {
 		mutex.acquire();
-		if (ageScrittori < MIN_PRIORITY) {
-			scrittoriInAttesa++;
-			mutex.release();
-			waitScrittori.acquire();
-		} else mutex.release();
+		scrittoreInAttesa = true;
+		mutex.release();
 		scrittura.acquire();
-		ageScrittori--;
+		scrittoreInAttesa = false;
 		System.out.println("Thread " + Thread.currentThread().getId() + " inizia a scrivere");
 		System.out.println("\tNumero lettori: " + numLettori);
 	}
@@ -38,11 +34,9 @@ public class MemoriaCondivisaSemAging extends MemoriaCondivisa {
 	public void fineScrittura() throws InterruptedException {
 		System.out.println("\tNumero lettori: " + numLettori);
 		System.out.println("Thread " + Thread.currentThread().getId() + " finisce di scrivere");
-		if (lettoriInAttesa > 0) {
-			waitLettori.release(lettoriInAttesa);
-			lettoriInAttesa = 0;
-			ageLettori = INITIAL_PRIORITY;
-		}
+		ageLettori = INITIAL_PRIORITY;
+		waitLettori.release(lettoriInAttesa);
+		lettoriInAttesa = 0;
 		scrittura.release();
 	}
 
@@ -55,7 +49,8 @@ public class MemoriaCondivisaSemAging extends MemoriaCondivisa {
 			mutex.acquire();
 		}
 		if (numLettori == 0) scrittura.acquire();
-		numLettori++; ageLettori--;
+		numLettori++;
+		if (scrittoreInAttesa) ageLettori--;
 		System.out.println("Thread " + Thread.currentThread().getId() + " inizia a leggere");
 		mutex.release();
 	}
@@ -64,14 +59,7 @@ public class MemoriaCondivisaSemAging extends MemoriaCondivisa {
 		mutex.acquire();
 		numLettori--;
 		System.out.println("Thread " + Thread.currentThread().getId() + " finisce di leggere");
-		if (numLettori == 0) {
-			if (scrittoriInAttesa > 0) {
-				waitScrittori.release(scrittoriInAttesa);
-				scrittoriInAttesa = 0;
-				ageScrittori = INITIAL_PRIORITY;
-			}
-			scrittura.release();
-		}
+		if (numLettori == 0) scrittura.release();
 		mutex.release();
 	}
 
