@@ -1,3 +1,10 @@
+/*
+
+Scrivere una soluzione con i semafori della variante del
+problema del produttore-consumatore, con il buffer illimitato.
+
+*/
+
 import java.util.concurrent.Semaphore;
 import java.util.LinkedList;
 
