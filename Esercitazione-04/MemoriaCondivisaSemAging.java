@@ -26,7 +26,6 @@ public class MemoriaCondivisaSemAging extends MemoriaCondivisa {
 		scrittoreInAttesa = true;
 		mutex.release();
 		scrittura.acquire();
-		scrittoreInAttesa = false;
 		System.out.println("Thread " + Thread.currentThread().getId() + " inizia a scrivere");
 		System.out.println("\tNumero lettori: " + numLettori);
 	}
@@ -48,7 +47,10 @@ public class MemoriaCondivisaSemAging extends MemoriaCondivisa {
 			waitLettori.acquire();
 			mutex.acquire();
 		}
-		if (numLettori == 0) scrittura.acquire();
+		if (numLettori == 0) {
+			scrittura.acquire();
+			scrittoreInAttesa = false;
+		}
 		numLettori++;
 		if (scrittoreInAttesa) ageLettori--;
 		System.out.println("Thread " + Thread.currentThread().getId() + " inizia a leggere");
