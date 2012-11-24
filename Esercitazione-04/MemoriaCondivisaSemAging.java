@@ -13,6 +13,7 @@ import java.util.HashMap;
 public class MemoriaCondivisaSemAging extends MemoriaCondivisa {
 
 	Semaphore mutex = new Semaphore(1);
+	Semaphore mutex2 = new Semaphore(1);
 	Semaphore scrittura = new Semaphore(1);
 	Semaphore waitLettori = new Semaphore(0);
 
@@ -33,16 +34,20 @@ public class MemoriaCondivisaSemAging extends MemoriaCondivisa {
 	public void fineScrittura() throws InterruptedException {
 		System.out.println("\tNumero lettori: " + numLettori);
 		System.out.println("Thread " + Thread.currentThread().getId() + " finisce di scrivere");
+		mutex2.acquire();
 		ageLettori = INITIAL_PRIORITY;
 		waitLettori.release(lettoriInAttesa);
 		lettoriInAttesa = 0;
+		mutex2.release();
 		scrittura.release();
 	}
 
 	public void inizioLettura() throws InterruptedException {
 		mutex.acquire();
 		if (ageLettori < MIN_PRIORITY) {
+			mutex2.acquire();
 			lettoriInAttesa++;
+			mutex2.release();
 			mutex.release();
 			waitLettori.acquire();
 			mutex.acquire();
