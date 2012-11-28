@@ -78,8 +78,7 @@ public class MonitorHoareSem {
 			if (threadCorrente != Thread.currentThread()) throw new IllegalMonitorStateException();
 			if (threadInAttesa > 0) {
 				condition.release();
-				segnalati.push(new Semaphore(0));
-				segnalati.peek().release();
+				segnalati.push(new Semaphore(1));
 				threadInAttesa--;
 				threadCorrente = null;
 				threadSegnalanti++;
@@ -137,17 +136,17 @@ public class MonitorHoareSem {
 	}
 
 	public static void main(String[]args) {
-		MonitorHoare m = new MonitorHoare();
+		MonitorHoareSem m = new MonitorHoareSem();
 		m.test(10);
 	}
 }
 
 class ThreadUtente extends Thread {
 	
-	private MonitorHoare m;
+	private MonitorHoareSem m;
 	private Random r = new Random();
 
-	public ThreadUtente(MonitorHoare m) {
+	public ThreadUtente(MonitorHoareSem m) {
 		this.m = m;
 	}
 
