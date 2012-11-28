@@ -15,6 +15,9 @@ stampa la posizione di un elemento della matrice che è
 massimo della propria riga e minimo della propria colonna.
 
 */
+
+package esercitazione2;
+
 class Massimo extends Thread {
 	int[][] m;
 	final int r;

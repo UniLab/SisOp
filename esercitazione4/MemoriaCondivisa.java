@@ -1,3 +1,5 @@
+package esercitazione4;
+
 public abstract class MemoriaCondivisa {
 	public abstract void inizioScrittura() throws InterruptedException;
 

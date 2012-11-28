@@ -5,6 +5,8 @@ problema del produttore-consumatore, con il buffer illimitato.
 
 */
 
+package esercitazione5;
+
 import java.util.concurrent.Semaphore;
 import java.util.LinkedList;
 

@@ -14,6 +14,9 @@ Si assuma che m sia una costante definita nel
 programma.
 
 */
+
+package esercitazione2;
+
 public class ProdottoScalare extends Thread {
 	private int[] a, b;
 	private int start, end, p;

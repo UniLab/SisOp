@@ -1,3 +1,5 @@
+package esercitazione5;
+
 import java.util.concurrent.TimeUnit;
 
 public class Consumatore implements Runnable {

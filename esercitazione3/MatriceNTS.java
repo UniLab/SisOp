@@ -1,43 +1,43 @@
-import java.util.concurrent.atomic.AtomicInteger;
+package eseercitazione3;
 
-class RigaTS extends Thread {
-	AtomicInteger[][] A; int r;
-	public RigaTS(AtomicInteger[][] A, int r) {
+class RigaNTS extends Thread {
+	int[][] A; int r;
+	public RigaNTS(int[][] A, int r) {
 		this.A = A; this.r = r;
 	}
 	public void run() {
 		for (int i = 0; i < A[r].length; i++)
-			A[r][i].getAndDecrement();
+			A[r][i]--;
 	}
 }
 
-class ColonnaTS extends Thread {
-	AtomicInteger[][] A; int c;
-	public ColonnaTS(AtomicInteger[][] A, int c) {
+class ColonnaNTS extends Thread {
+	int[][] A; int c;
+	public ColonnaNTS(int[][] A, int c) {
 		this.A = A; this.c = c;
 	}
 	public void run() {
 		for (int i = 0; i < A.length; i++)
-			A[i][c].getAndIncrement();
+			A[i][c]++;
 	}
 }
 
 
-public class MatriceTS {
+public class MatriceNTS {
 	public static void main(String[]args) {
 		int n = 1000, m = 1000;
-		AtomicInteger[][] A = new AtomicInteger[n][m];
+		int[][] A = new int[n][m];
 		for (int i = 0; i < A.length; i++)
 			for (int j = 0; j < A[i].length; j++)
-				A[i][j] = new AtomicInteger(0);
-		RigaTS[] righe = new RigaTS[n];
-		ColonnaTS[] colonne = new ColonnaTS[m];
+				A[i][j] = 0;
+		RigaNTS[] righe = new RigaNTS[n];
+		ColonnaNTS[] colonne = new ColonnaNTS[m];
 		for (int i = 0; i < n; i++) {
-			righe[i] = new RigaTS(A, i);
+			righe[i] = new RigaNTS(A, i);
 			righe[i].start();
 		}
 		for (int i = 0; i < m; i++) {
-			colonne[i] = new ColonnaTS(A, i);
+			colonne[i] = new ColonnaNTS(A, i);
 			colonne[i].start();
 		}
 		try {
@@ -46,6 +46,6 @@ public class MatriceTS {
 		} catch(InterruptedException e) { }
 		for (int i = 0; i < A.length; i++)
 			for (int j = 0; j < A[i].length; j++)
-				if (A[i][j].get() != 0) System.out.println("Errore!");
+				if (A[i][j] != 0) System.out.println("Errore!");
 	}
 }

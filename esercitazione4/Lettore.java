@@ -1,31 +1,33 @@
+package esercitazione4;
+
 import java.util.concurrent.TimeUnit;
 import java.util.Random;
 
-public class Scrittore implements Runnable {
+public class Lettore implements Runnable {
 
-	private static final int MIN_TEMPO_SCRITTURA = 2;
-	private static final int MAX_TEMPO_SCRITTURA = 3;
-	private static final int MIN_TEMPO_ALTRO = 10;
-	private static final int MAX_TEMPO_ALTRO = 20;
-
+	private static final int MIN_TEMPO_LETTURA = 1;
+	private static final int MAX_TEMPO_LETTURA = 4;
+	private static final int MIN_TEMPO_ALTRO = 6;
+	private static final int MAX_TEMPO_ALTRO = 10;
+	
 	private MemoriaCondivisa memoria;
 	private Random random = new Random();
-
-	public Scrittore(MemoriaCondivisa mem) {
+	
+	public Lettore(MemoriaCondivisa mem) {
 		memoria = mem;
 	}
 	public void run() {
 		try {
 			while (true) {
-				memoria.inizioScrittura();
-				scrivi();
-				memoria.fineScrittura();
+				memoria.inizioLettura();
+				leggi();
+				memoria.fineLettura();
 				faiAltro();
 			}
 		} catch (InterruptedException e) {}
 	}
-	private void scrivi() throws InterruptedException {
-		attendi(MIN_TEMPO_SCRITTURA, MAX_TEMPO_SCRITTURA);
+	private void leggi() throws InterruptedException {
+		attendi(MIN_TEMPO_LETTURA, MAX_TEMPO_LETTURA);
 	}
 	private void faiAltro() throws InterruptedException {
 		attendi(MIN_TEMPO_ALTRO, MAX_TEMPO_ALTRO);

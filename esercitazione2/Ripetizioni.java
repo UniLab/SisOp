@@ -13,6 +13,9 @@ un insieme di thread che operano in parallelo, ed infine
 stampa true se x è più presente di y, false altrimenti.
 
 */
+
+package esercitazione2;
+
 public class Ripetizioni extends Thread {
 	int[][] A;
 	int r, x, y, rx = 0, ry = 0;

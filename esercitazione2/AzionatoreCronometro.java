@@ -12,6 +12,8 @@ AzionatoreCronometro in modo che:
 
 */
 
+package esercitazione2;
+
 import java.util.Scanner;
 
 class Cronometro implements Runnable {

@@ -1,3 +1,5 @@
+package esercitazione5;
+
 public abstract class Buffer {
 	
 	protected Elemento[] buffer;

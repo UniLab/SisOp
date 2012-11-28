@@ -8,6 +8,8 @@ di “A” e “B” rispettivamente.
 
 */
 
+package esercitazione4;
+
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.Random;

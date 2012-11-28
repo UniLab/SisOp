@@ -1,3 +1,5 @@
+package esercitazione4;
+
 import java.util.concurrent.Semaphore;
 
 public class MemoriaCondivisaSem extends MemoriaCondivisa {
