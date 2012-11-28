@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.Random;
 import java.util.Stack;
 
-public class MonitorHoareSem {
+public class MonitorHoareSem implements Hoare {
 	
 	private Semaphore lock = new Semaphore(1);
 	private Semaphore mutex = new Semaphore(1); // Per proteggere le variabili threadCorrente, threadInAttesa e threadSegnalanti
@@ -72,59 +72,55 @@ public class MonitorHoareSem {
 		mutex.release();
 	}
 
-	public void signal() {
-		try {
+	public void signal() throws InterruptedException  {
+		mutex.acquire();
+		if (threadCorrente != Thread.currentThread()) throw new IllegalMonitorStateException();
+		if (threadInAttesa > 0) {
+			condition.release();
+			segnalati.push(new Semaphore(1));
+			threadInAttesa--;
+			threadCorrente = null;
+			threadSegnalanti++;
+			Semaphore s = new Semaphore(0);
+			segnalanti.push(s);
+			System.out.println("Thread " + Thread.currentThread().getId() + " esegue una signal");
+			mutex.release();
+			s.acquire();
 			mutex.acquire();
-			if (threadCorrente != Thread.currentThread()) throw new IllegalMonitorStateException();
-			if (threadInAttesa > 0) {
-				condition.release();
-				segnalati.push(new Semaphore(1));
-				threadInAttesa--;
+			System.out.println("Thread " + Thread.currentThread().getId() + " ritorna dopo la signal");
+			threadCorrente = Thread.currentThread();
+			threadSegnalanti--;
+			segnalati.pop();
+		}
+		mutex.release();
+	}
+
+	public void signalAll() throws InterruptedException {
+		mutex.acquire();
+		if (threadCorrente != Thread.currentThread()) throw new IllegalMonitorStateException();
+		if (threadInAttesa > 0) {
+			condition.release(threadInAttesa);
+			int threadInAttesaAttuale = threadInAttesa;
+			threadInAttesa = 0;
+			segnalati.push(new Semaphore(0));
+			while (threadInAttesaAttuale > 0) {
+				segnalati.peek().release();
+				threadInAttesaAttuale--;
 				threadCorrente = null;
 				threadSegnalanti++;
 				Semaphore s = new Semaphore(0);
 				segnalanti.push(s);
-				System.out.println("Thread " + Thread.currentThread().getId() + " esegue una signal");
+				System.out.println("Thread " + Thread.currentThread().getId() + " esegue una signal di signalAll");
 				mutex.release();
 				s.acquire();
 				mutex.acquire();
-				System.out.println("Thread " + Thread.currentThread().getId() + " ritorna dopo la signal");
+				System.out.println("Thread " + Thread.currentThread().getId() + " ritorna dopo una signal di signalAll");
 				threadCorrente = Thread.currentThread();
 				threadSegnalanti--;
-				segnalati.pop();
 			}
-			mutex.release();
-		} catch(InterruptedException e) {}
-	}
-
-	public void signalAll() {
-		try {
-			mutex.acquire();
-			if (threadCorrente != Thread.currentThread()) throw new IllegalMonitorStateException();
-			if (threadInAttesa > 0) {
-				condition.release(threadInAttesa);
-				int threadInAttesaAttuale = threadInAttesa;
-				threadInAttesa = 0;
-				segnalati.push(new Semaphore(0));
-				while (threadInAttesaAttuale > 0) {
-					segnalati.peek().release();
-					threadInAttesaAttuale--;
-					threadCorrente = null;
-					threadSegnalanti++;
-					Semaphore s = new Semaphore(0);
-					segnalanti.push(s);
-					System.out.println("Thread " + Thread.currentThread().getId() + " esegue una signal di signalAll");
-					mutex.release();
-					s.acquire();
-					mutex.acquire();
-					System.out.println("Thread " + Thread.currentThread().getId() + " ritorna dopo una signal di signalAll");
-					threadCorrente = Thread.currentThread();
-					threadSegnalanti--;
-				}
-				segnalati.pop();
-			}
-			mutex.release();
-		} catch(InterruptedException e) {}
+			segnalati.pop();
+		}
+		mutex.release();
 	}
 
 	public void test(int threads) {
@@ -145,6 +141,9 @@ class ThreadUtente extends Thread {
 	
 	private MonitorHoareSem m;
 	private Random r = new Random();
+
+	public static final int MIN_ATTESA = 50;
+	public static final int MAX_ATTESA = 200;
 
 	public ThreadUtente(MonitorHoareSem m) {
 		this.m = m;
@@ -174,6 +173,6 @@ class ThreadUtente extends Thread {
 	}
 
 	private void attesaCasuale() throws InterruptedException {
-		TimeUnit.MILLISECONDS.sleep(r.nextInt(101));
+		TimeUnit.MILLISECONDS.sleep(r.nextInt(MAX_ATTESA - MIN_ATTESA + 1) + MIN_ATTESA);
 	}
 }
