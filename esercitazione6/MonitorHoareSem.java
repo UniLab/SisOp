@@ -159,7 +159,7 @@ class ThreadUtente extends Thread {
 				attesaCasuale();
 				while (condizioneCasuale()) m.await();
 				attesaCasuale();
-				if (condizioneCasuale()/* || condizioneCasuale()*/) m.signal();
+				if (condizioneCasuale() || condizioneCasuale()) m.signal();
 				else m.signalAll();
 				attesaCasuale();
 				System.out.println("Fine operazioni thread " + Thread.currentThread().getId());
