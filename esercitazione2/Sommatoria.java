@@ -11,13 +11,19 @@ class Sommatore implements Runnable {
 	private int da;
 	private int a;
 	private int somma;
+	private Thread t;
 
 	public Sommatore(int da, int a) {
 		this.da = da;
 		this.a = a;
+		this.t = new Thread(this);
 	}
 	
-	public int getSomma() { return somma; }
+	public int getSomma() throws InterruptedException {
+		t.start();
+		t.join();
+		return somma;
+	}
 
 	public void run() {
 		somma = 0;
@@ -33,12 +39,7 @@ public class Sommatoria {
 		int intermedio = (ultimo + primo) / 2;
 		Sommatore s1 = new Sommatore(primo, intermedio);
 		Sommatore s2 = new Sommatore(intermedio + 1, ultimo);
-		Thread t1 = new Thread(s1);
-		Thread t2 = new Thread(s2);
-		t1.start();
-		t2.start();
 		try {
-			t1.join(); t2.join();
 			System.out.println(s1.getSomma() + s2.getSomma());
 		} catch (InterruptedException e) {}
 	}
