@@ -20,7 +20,7 @@ public class PortaPiattiLC extends PortaPiatti {
 			numPiatti += n;
 			System.out.println(Thread.currentThread().toString() +
 				" ha posato " + n + " piatt" + (n > 1 ? "i" : "o") + ". " + tipo + " ne contiene " + numPiatti);
-			while (n-- > 0) ciSonoPiatti.signal();
+			ciSonoPiatti.signalAll();
 		} catch (InterruptedException e) {
 		} finally {
 			l.unlock();
