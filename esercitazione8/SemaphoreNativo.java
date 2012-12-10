@@ -13,9 +13,9 @@ public interface Semaphore {
 
 */
 
-
 package esercitazione8;
 
+import java.util.Random;
 import java.util.Deque;
 import java.util.LinkedList;
 
@@ -43,7 +43,7 @@ public class SemaphoreNativo implements Semaphore {
 
 	public synchronized void acquire(int p) throws InterruptedException {
 		System.out.println("Thread #" + Thread.currentThread().getId() + " ne richiede " + p + ". Disponibili: " + permits);
-		stack.addFirst(new Request(Thread.currentThread(), 1));
+		stack.addFirst(new Request(Thread.currentThread(), p));
 		while (!permessiSufficienti(p)) wait();
 		// Anche se i permessi sono sufficienti, aspetto
 		// i thread prima di me rispettando l'ordine LIFO
@@ -71,5 +71,44 @@ public class SemaphoreNativo implements Semaphore {
 			permessiResidui -= r.permits;
 		}
 		return permessiResidui >= p;
+	}
+
+	public static void main(String[]args) {
+		ThreadUser[] t = new ThreadUser[20];
+		Semaphore s = new SemaphoreNativo(10);
+		for (int i = 0; i < t.length; i++) t[i] = new ThreadUser(s);
+		for (ThreadUser u: t) u.start();
+	}
+}
+
+// Classe di test
+class ThreadUser extends Thread {
+
+	private Semaphore s;
+	private Random r = new Random();
+
+	public static final int MIN_PERMESSI = 2;
+	public static final int MAX_PERMESSI = 5;
+
+	public ThreadUser(Semaphore s) { this.s = s; }
+	public void run() {
+		try {
+			while(true) {
+				if (condizioneCasuale() && condizioneCasuale()) {
+					if (condizioneCasuale()) s.release(permessoCasuale());
+					else s.release();
+				} else {
+					if (condizioneCasuale()) s.acquire(permessoCasuale());
+					else s.acquire();
+				}
+			}
+		} catch (InterruptedException e) {}
+	}
+	private boolean condizioneCasuale() {
+		return r.nextInt(2) == 0;
+	}
+
+	private int permessoCasuale() {
+		return r.nextInt(MAX_PERMESSI - MIN_PERMESSI + 1) + MIN_PERMESSI;
 	}
 }
