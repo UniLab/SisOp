@@ -15,8 +15,6 @@ e che esponga i seguenti metodi:
 package esercitazione6;
 
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-import java.util.Random;
 import java.util.Stack;
 
 public class MonitorHoareSem implements Hoare {
@@ -124,9 +122,9 @@ public class MonitorHoareSem implements Hoare {
 	}
 
 	public void test(int threads) {
-		ThreadUtente[] t = new ThreadUtente[threads];
+		ThreadUtenteHoare[] t = new ThreadUtenteHoare[threads];
 		for (int i = 0; i < t.length; i++)
-			t[i] = new ThreadUtente(this);
+			t[i] = new ThreadUtenteHoare(this);
 		for (int i = 0; i < t.length; i++)
 			t[i].start();
 	}
@@ -134,45 +132,5 @@ public class MonitorHoareSem implements Hoare {
 	public static void main(String[]args) {
 		MonitorHoareSem m = new MonitorHoareSem();
 		m.test(10);
-	}
-}
-
-class ThreadUtente extends Thread {
-	
-	private MonitorHoareSem m;
-	private Random r = new Random();
-
-	public static final int MIN_ATTESA = 50;
-	public static final int MAX_ATTESA = 200;
-
-	public ThreadUtente(MonitorHoareSem m) {
-		this.m = m;
-	}
-
-	public void run() {
-		while (true) {
-			try {
-				m.lock();
-				System.out.println("Inizio operazioni thread " + Thread.currentThread().getId());
-				attesaCasuale();
-				while (condizioneCasuale()) m.await();
-				attesaCasuale();
-				if (condizioneCasuale() || condizioneCasuale()) m.signal();
-				else m.signalAll();
-				attesaCasuale();
-				System.out.println("Fine operazioni thread " + Thread.currentThread().getId());
-			} catch(InterruptedException e) {
-			} finally {
-				m.unlock();
-			}
-		}
-	}
-
-	private boolean condizioneCasuale() {
-		return r.nextInt(2) == 0;
-	}
-
-	private void attesaCasuale() throws InterruptedException {
-		TimeUnit.MILLISECONDS.sleep(r.nextInt(MAX_ATTESA - MIN_ATTESA + 1) + MIN_ATTESA);
 	}
 }
