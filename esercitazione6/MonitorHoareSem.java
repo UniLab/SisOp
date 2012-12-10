@@ -15,15 +15,16 @@ e che esponga i seguenti metodi:
 package esercitazione6;
 
 import java.util.concurrent.Semaphore;
-import java.util.Stack;
+import java.util.Deque;
+import java.util.LinkedList;
 
 public class MonitorHoareSem implements Hoare {
 	
 	private Semaphore lock = new Semaphore(1);
 	private Semaphore mutex = new Semaphore(1); // Per proteggere le variabili threadCorrente, threadInAttesa e threadSegnalanti
 	private Semaphore condition = new Semaphore(0);
-	private Stack<Semaphore> segnalati = new Stack<Semaphore>();
-	private Stack<Semaphore> segnalanti = new Stack<Semaphore>();
+	private Deque<Semaphore> segnalati = new LinkedList<Semaphore>();
+	private Deque<Semaphore> segnalanti = new LinkedList<Semaphore>();
 
 	private Thread threadCorrente = null;
 	private int threadInAttesa = 0, threadSegnalanti = 0;
@@ -42,11 +43,8 @@ public class MonitorHoareSem implements Hoare {
 			if (threadCorrente != Thread.currentThread()) throw new IllegalMonitorStateException();
 			System.out.println("Thread " + Thread.currentThread().getId() + " lascia il monitor");
 			threadCorrente = null;
-			if (threadSegnalanti > 0) segnalanti.pop().release();
-			else {
-				threadCorrente = null;
-				lock.release();
-			}
+			if (threadSegnalanti > 0) segnalanti.removeFirst().release();
+			else lock.release();
 			mutex.release();
 		} catch(InterruptedException e) {}
 	}
@@ -55,15 +53,13 @@ public class MonitorHoareSem implements Hoare {
 		mutex.acquire();
 		if (threadCorrente != Thread.currentThread()) throw new IllegalMonitorStateException();
 		threadInAttesa++;
-		if (threadSegnalanti > 0) segnalanti.pop().release();
-		else {
-			threadCorrente = null;
-			lock.release();
-		}
+		threadCorrente = null;
+		if (threadSegnalanti > 0) segnalanti.removeFirst().release();
+		else lock.release();
 		System.out.println("Thread " + Thread.currentThread().getId() + " attende nella condition");
 		mutex.release();
 		condition.acquire();
-		segnalati.peek().acquire();
+		segnalati.peekFirst().acquire();
 		mutex.acquire();
 		System.out.println("Thread " + Thread.currentThread().getId() + " esce dalla condition");
 		threadCorrente = Thread.currentThread();
@@ -74,13 +70,13 @@ public class MonitorHoareSem implements Hoare {
 		mutex.acquire();
 		if (threadCorrente != Thread.currentThread()) throw new IllegalMonitorStateException();
 		if (threadInAttesa > 0) {
+			segnalati.addFirst(new Semaphore(1));
 			condition.release();
-			segnalati.push(new Semaphore(1));
 			threadInAttesa--;
 			threadCorrente = null;
 			threadSegnalanti++;
 			Semaphore s = new Semaphore(0);
-			segnalanti.push(s);
+			segnalanti.addFirst(s);
 			System.out.println("Thread " + Thread.currentThread().getId() + " esegue una signal");
 			mutex.release();
 			s.acquire();
@@ -88,7 +84,7 @@ public class MonitorHoareSem implements Hoare {
 			System.out.println("Thread " + Thread.currentThread().getId() + " ritorna dopo la signal");
 			threadCorrente = Thread.currentThread();
 			threadSegnalanti--;
-			segnalati.pop();
+			segnalati.removeFirst();
 		}
 		mutex.release();
 	}
@@ -97,17 +93,17 @@ public class MonitorHoareSem implements Hoare {
 		mutex.acquire();
 		if (threadCorrente != Thread.currentThread()) throw new IllegalMonitorStateException();
 		if (threadInAttesa > 0) {
+			segnalati.addFirst(new Semaphore(0));
 			condition.release(threadInAttesa);
 			int threadInAttesaAttuale = threadInAttesa;
 			threadInAttesa = 0;
-			segnalati.push(new Semaphore(0));
 			while (threadInAttesaAttuale > 0) {
-				segnalati.peek().release();
+				segnalati.peekFirst().release();
 				threadInAttesaAttuale--;
 				threadCorrente = null;
 				threadSegnalanti++;
 				Semaphore s = new Semaphore(0);
-				segnalanti.push(s);
+				segnalanti.addFirst(s);
 				System.out.println("Thread " + Thread.currentThread().getId() + " esegue una signal di signalAll");
 				mutex.release();
 				s.acquire();
@@ -116,7 +112,7 @@ public class MonitorHoareSem implements Hoare {
 				threadCorrente = Thread.currentThread();
 				threadSegnalanti--;
 			}
-			segnalati.pop();
+			segnalati.removeFirst();
 		}
 		mutex.release();
 	}

@@ -26,6 +26,7 @@ public class ThreadUtenteHoare extends Thread {
 				else m.signalAll();
 				attesaCasuale();
 			} catch(InterruptedException e) {
+				System.out.println("Possibile?");
 			} finally {
 				m.unlock();
 			}
