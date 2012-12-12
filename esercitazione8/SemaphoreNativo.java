@@ -17,24 +17,25 @@ package esercitazione8;
 
 import java.util.Random;
 import java.util.Deque;
+import java.util.Queue;
 import java.util.LinkedList;
 
 public class SemaphoreNativo implements Semaphore {
 	
-	Deque<Request> stack = new LinkedList<Request>();
-	private Object lock = new Object();
-	private int permits;
+	Deque<Request> stackAttesa = new LinkedList<Request>();
+	Queue<Thread> codaPronti = new LinkedList<Thread>();
+	private int permessi;
 
 	private static class Request {
 		Thread thread;
-		int permits;
+		int permessi;
 		public Request(Thread t, int p) {
-			thread = t; permits = p;
+			thread = t; permessi = p;
 		}
 	}
 
 	public SemaphoreNativo(int p) {
-		permits = p;
+		permessi = p;
 	}
 
 	public synchronized void acquire() throws InterruptedException {
@@ -42,35 +43,30 @@ public class SemaphoreNativo implements Semaphore {
 	}
 
 	public synchronized void acquire(int p) throws InterruptedException {
-		System.out.println("Thread #" + Thread.currentThread().getId() + " ne richiede " + p + ". Disponibili: " + permits);
-		stack.addFirst(new Request(Thread.currentThread(), p));
-		while (!permessiSufficienti(p)) wait();
-		// Anche se i permessi sono sufficienti, aspetto
-		// i thread prima di me rispettando l'ordine LIFO
-		while (stack.peekFirst().thread != Thread.currentThread())
-			synchronized(lock) { lock.wait(); }
-		stack.removeFirst();
-		permits -= p;
-		synchronized(lock) { lock.notifyAll(); }
-		System.out.println("Thread #" + Thread.currentThread().getId() + " ne ottiene " + p + ". Disponibili: " + permits);
+		System.out.println("Thread #" + Thread.currentThread().getId() + " ne richiede " + p);
+		if (!codaPronti.isEmpty() || permessi < p) {
+			stackAttesa.addFirst(new Request(Thread.currentThread(), p));
+			while (codaPronti.isEmpty() || codaPronti.peek() != Thread.currentThread()) wait();
+			codaPronti.poll();
+			if (codaPronti.isEmpty()) rilasciaPermessi();
+		} else permessi -= p;
+		System.out.println("Thread #" + Thread.currentThread().getId() + " ne ottiene " + p);
 	}
 
 	public synchronized void release() { release(1); }
 
 	public synchronized void release(int p) {
-		permits += p;
-		notifyAll();
-		System.out.println("Thread #" + Thread.currentThread().getId() + " ne rilascia " + p + ". Disponibili: " + permits);
+		permessi += p;
+		rilasciaPermessi();
+		System.out.println("Thread #" + Thread.currentThread().getId() + " ne rilascia " + p);
 	}
 
-	private boolean permessiSufficienti(int p) {
-		int permessiResidui = permits;
-		// Tengo conto dei permessi che verranno acquisiti prima di me
-		for (Request r: stack) {
-			if (r.thread == Thread.currentThread()) break;
-			permessiResidui -= r.permits;
+	private synchronized void rilasciaPermessi() {
+		while (!stackAttesa.isEmpty() && permessi >= stackAttesa.peekFirst().permessi) {
+			permessi -= stackAttesa.peekFirst().permessi;
+			codaPronti.offer(stackAttesa.removeFirst().thread);
 		}
-		return permessiResidui >= p;
+		notifyAll();
 	}
 
 	public static void main(String[]args) {
