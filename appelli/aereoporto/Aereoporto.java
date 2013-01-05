@@ -3,38 +3,24 @@ package appelli.aereoporto;
 public abstract class Aereoporto {
 	
 	protected int numPiste, numNavette, numAerei;
-	protected int[] richiesteAtterraggi, richiesteDecolli;
 	protected boolean[] pisteLibere, navetteLibere;
+	protected int richiesteAtterraggi = 0, richiesteDecolli = 0, numPisteLibere;
 	
 	public Aereoporto(int p, int q, int r) {
-		numPiste = p;
+		numPisteLibere = numPiste = p;
 		numNavette = q;
 		numAerei = r;
-		richiesteAtterraggi = new int[p];
-		richiesteDecolli = new int[p];
 		pisteLibere = new boolean[p];
 		navetteLibere = new boolean[q];
-		for (int i = 0; i < p; i++) {
-			richiesteAtterraggi[i] = 0;
-			richiesteDecolli[i] = 0;
-			pisteLibere[i] = true;
-		}
-		for (int i = 0; i < q; i++) navetteLibere[i] = true;
+		for (int i = 0; i < p; i++) pisteLibere[i] = true;
+		for (int i = 0; i < q; i++) navetteLibere[i] = false;
 	}
 
 	protected int scegliPista() {
-		for (int i = 0; i < numPiste; i++)
-			if (pisteLibere[i]) return i;
-		int iMin = 0, min = richiesteAtterraggi[iMin] + richiesteDecolli[iMin], n;
-		for (int i = 1; i < numPiste; i++) {
-			if (min == 0) return iMin;
-			n = richiesteAtterraggi[i] + richiesteDecolli[i];
-			if (min > n) {
-				min = n;
-				iMin = i;
-			}
-		}
-		return iMin;
+		// Pre: esiste almeno una pista libera
+		int i = 0;
+		while (!pisteLibere[i]) i++;
+		return i;
 	}
 
 	protected int scegliNavetta() {

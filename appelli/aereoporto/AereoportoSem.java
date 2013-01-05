@@ -4,19 +4,16 @@ import java.util.concurrent.Semaphore;
 
 public class AereoportoSem extends Aereoporto {
 	
-	private Semaphore mutex = new Semaphore(1), navetta = new Semaphore(0);
-	private Semaphore[] atterraggi, decolli, navette, imbarchi;
+	private Semaphore mutex = new Semaphore(1), navetta = new Semaphore(0),
+		pista, pistaDecollo;
+	private Semaphore[] navette, imbarchi;
 
 	public AereoportoSem(int p, int q, int r) {
 		super(p, q, r);
-		atterraggi = new Semaphore[p];
-		decolli = new Semaphore[p];
+		pista = new Semaphore(0, true);
+		pistaDecollo = new Semaphore(0, true);
 		navette = new Semaphore[q];
 		imbarchi = new Semaphore[q];
-		for (int i = 0; i < p; i++) {
-			atterraggi[i] = new Semaphore(0, true);
-			decolli[i] = new Semaphore(0, true);
-		}
 		for (int i = 0; i < q; i++) {
 			navette[i] = new Semaphore(0);
 			imbarchi[i] = new Semaphore(0);
@@ -26,15 +23,16 @@ public class AereoportoSem extends Aereoporto {
 	public int richiediAtterraggio() throws InterruptedException {
 		mutex.acquire();
 		System.out.println("Aereo #" + Thread.currentThread().getId() + " richiede atterraggio");
-	 	int pista = scegliPista();
-		if (pisteLibere[pista]) pisteLibere[pista] = false;
-		else {
-			richiesteAtterraggi[pista]++;
+		if (numPisteLibere <= richiesteAtterraggi) {
+			richiesteAtterraggi++;
 			mutex.release();
-			atterraggi[pista].acquire();
+			pista.acquire();
 			mutex.acquire();
-			richiesteAtterraggi[pista]--;
+			richiesteAtterraggi--;
 		}
+		int pista = scegliPista();
+		pisteLibere[pista] = false;
+		numPisteLibere--;
 		mutex.release();
 		return pista;
 	}
@@ -50,24 +48,26 @@ public class AereoportoSem extends Aereoporto {
 		imbarchi[n].acquire();
 		mutex.acquire();
 		System.out.println("Aereo #" + Thread.currentThread().getId() + " richiede decollo");
-		int pista = scegliPista();
-		if (pisteLibere[pista]) pisteLibere[pista] = false;
-		else {
-			richiesteDecolli[pista]++;
+		if (numPisteLibere <= richiesteAtterraggi || richiesteDecolli > 0) {
+			richiesteDecolli++;
 			mutex.release();
-			decolli[pista].acquire();
+			pistaDecollo.acquire();
 			mutex.acquire();
-			richiesteDecolli[pista]--;
+			richiesteDecolli--;
 		}
+		int pista = scegliPista();
+		pisteLibere[pista] = false;
+		numPisteLibere--;
 		mutex.release();
 		return pista;
 	}
 
 	public void rilasciaPista(int p) throws InterruptedException {
 		mutex.acquire();
-		if (richiesteAtterraggi[p] > 0) atterraggi[p].release();
-		else if (richiesteDecolli[p] > 0) decolli[p].release();
-		else pisteLibere[p] = true;
+		pisteLibere[p] = true;
+		numPisteLibere++;
+		if (richiesteAtterraggi > 0) pista.release();
+		else if (richiesteDecolli > 0) pistaDecollo.release();
 		mutex.release();
 	}
 
