@@ -19,11 +19,9 @@ public class AereoportoLC extends Aereoporto {
 		super(p, q, r);
 		navette = new Condition[q];
 		imbarchi = new Condition[q];
-		imbarcoFinito = new boolean[q];
 		for (int i = 0; i < q; i++) {
 			navette[i] = l.newCondition();
 			imbarchi[i] = l.newCondition();
-			imbarcoFinito[i] = false;
 		}
 	}
 
