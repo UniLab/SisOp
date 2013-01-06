@@ -13,7 +13,7 @@ public abstract class Aereoporto {
 		pisteLibere = new boolean[p];
 		navetteLibere = new boolean[q];
 		for (int i = 0; i < p; i++) pisteLibere[i] = true;
-		for (int i = 0; i < q; i++) navetteLibere[i] = false;
+		for (int i = 0; i < q; i++) navetteLibere[i] = true;
 	}
 
 	protected int scegliPista() {

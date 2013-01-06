@@ -14,7 +14,6 @@ public class AereoportoLC extends Aereoporto {
 		codaDecolli = new LinkedList<Thread>();
 	private Condition[] navette, imbarchi;
 	private int numNavetteLibere = 0;
-	private boolean[] imbarcoFinito;
 
 	public AereoportoLC(int p, int q, int r) {
 		super(p, q, r);
@@ -51,8 +50,7 @@ public class AereoportoLC extends Aereoporto {
 			numNavetteLibere--;
 			navetteLibere[n] = false;
 			navette[n].signal();
-			imbarcoFinito[n] = false;
-			while (!imbarcoFinito[n]) imbarchi[n].await();
+			while (!navetteLibere[n]) imbarchi[n].await();
 			System.out.println("Aereo #" + Thread.currentThread().getId() + " richiede decollo");
 			codaDecolli.offer(Thread.currentThread());
 			while (numPisteLibere <= codaAtterraggi.size() || codaDecolli.peek() != Thread.currentThread()) pistaDecollo.await();
@@ -78,7 +76,6 @@ public class AereoportoLC extends Aereoporto {
 		l.lock();
 		try {
 			numNavetteLibere++;
-			navetteLibere[n] = true;
 			navetta.signal();
 			while (navetteLibere[n]) navette[n].await();
 		} finally { l.unlock(); }
@@ -87,7 +84,7 @@ public class AereoportoLC extends Aereoporto {
 	public void liberaAereo(int n) {
 		l.lock();
 		try {
-			imbarcoFinito[n] = true;
+			navetteLibere[n] = true;
 			imbarchi[n].signal();
 		} finally { l.unlock(); }
 	}
