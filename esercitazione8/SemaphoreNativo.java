@@ -46,24 +46,28 @@ public class SemaphoreNativo implements Semaphore {
 		System.out.println("Thread #" + Thread.currentThread().getId() + " ne richiede " + p);
 		if (!codaPronti.isEmpty() || permessi < p) {
 			stackAttesa.addFirst(new Request(Thread.currentThread(), p));
-			while (codaPronti.isEmpty() || codaPronti.peek() != Thread.currentThread()) wait();
-			codaPronti.poll();
+			while (codaPronti.isEmpty() || !codaPronti.contains(Thread.currentThread())) wait();
+			codaPronti.remove(Thread.currentThread());
 			if (codaPronti.isEmpty()) rilasciaPermessi();
-		} else permessi -= p;
-		System.out.println("Thread #" + Thread.currentThread().getId() + " ne ottiene " + p);
+		} else {
+			permessi -= p;
+			System.out.println("Thread #" + Thread.currentThread().getId() + " ne ottiene " + p);
+		}
 	}
 
 	public synchronized void release() { release(1); }
 
 	public synchronized void release(int p) {
 		permessi += p;
-		rilasciaPermessi();
 		System.out.println("Thread #" + Thread.currentThread().getId() + " ne rilascia " + p);
+		rilasciaPermessi();
 	}
 
 	private synchronized void rilasciaPermessi() {
 		while (!stackAttesa.isEmpty() && permessi >= stackAttesa.peekFirst().permessi) {
 			permessi -= stackAttesa.peekFirst().permessi;
+			System.out.println("Thread #" + stackAttesa.peekFirst().thread.getId() +
+						" ne ottiene " + stackAttesa.peekFirst().permessi);
 			codaPronti.offer(stackAttesa.removeFirst().thread);
 		}
 		notifyAll();
