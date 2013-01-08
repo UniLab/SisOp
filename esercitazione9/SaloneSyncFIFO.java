@@ -1,18 +1,24 @@
 package esercitazione9;
 
-public class SaloneSync extends Salone {
+import java.util.Queue;
+import java.util.LinkedList;
+
+public class SaloneSyncFIFO extends Salone {
 	private boolean clienteInPoltrona = false;
 	private boolean prossimo = false;
-	
-	public SaloneSync(int c) { super(c); }
+	Queue<Thread> codaAttesa = new LinkedList<Thread>();
+
+	public SaloneSyncFIFO(int c) { super(c); }
 
 	public synchronized boolean entra() throws InterruptedException {
 		System.out.println("Cliente #" + Thread.currentThread().getId() + " entra nel salone");
 		boolean servito = true;
-		if (!clienteInPoltrona) siediInPoltrona();
+		if (!clienteInPoltrona || !prossimo) siediInPoltrona();
 		else if (numClientiInAttesa < capienza) {
 			numClientiInAttesa++;
-			while (!prossimo) wait();
+			codaAttesa.offer(Thread.currentThread());
+			while (!prossimo || codaAttesa.peek() != Thread.currentThread()) wait();
+			codaAttesa.poll();
 			prossimo = false;
 			numClientiInAttesa--;
 			siediInPoltrona();
@@ -29,7 +35,7 @@ public class SaloneSync extends Salone {
 	public synchronized void getCliente() throws InterruptedException {
 		if (numClientiInAttesa > 0) {
 			prossimo = true;
-			notify();
+			notifyAll();
 		}
 		while (!clienteInPoltrona) wait();
 	}

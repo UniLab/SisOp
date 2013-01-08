@@ -21,11 +21,8 @@ public class Cliente implements Runnable {
 	public void run() {
 		try {
 			raggiungiSalone();
-			if (salone.entra()) {
-				System.out.println("Cliente #" + t.getId() + " è stato servito");
-			} else {
-				System.out.println("Cliente #" + t.getId() + " deve cercare un altro barbiere");
-			}
+			if (salone.entra()) System.out.println("Cliente #" + t.getId() + " è stato servito");
+			else System.out.println("Cliente #" + t.getId() + " deve cercare un altro barbiere");
 		} catch (InterruptedException e) {}
 	}
 
