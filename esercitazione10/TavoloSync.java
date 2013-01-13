@@ -23,6 +23,6 @@ public class TavoloSync extends Tavolo {
 
 	private boolean ingredientiGiusti(int i) {
 		return ciSonoIngredienti &&
-			((ingredienti[ingredienti.length - 1] + 1) % NUM_INGREDIENTI != i);
+			((ingredienti[ingredienti.length - 1] + 1) % NUM_INGREDIENTI == i);
 	}
 }
