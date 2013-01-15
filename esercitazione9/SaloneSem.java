@@ -11,9 +11,9 @@ public class SaloneSem extends Salone {
 	public SaloneSem(int c) { super(c); }
 
 	public boolean entra() throws InterruptedException {
-		System.out.println("Cliente #" + Thread.currentThread().getId() + " entra nel salone");
 		boolean servito = true;
 		mutex.acquire();
+		System.out.println("Cliente #" + Thread.currentThread().getId() + " entra nel salone");
 		if (barbiereAddormentato) {
 			siediInPoltrona();
 		} else if (numClientiInAttesa < capienza) {

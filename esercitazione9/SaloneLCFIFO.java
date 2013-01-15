@@ -1,3 +1,13 @@
+/*
+
+Risolvere il problema del barbiere addormentato
+imponendo una politica FIFO di richiamo dei clienti
+dalla sala d'attesa: scrivere una soluzione con i
+semafori, una con le Lock e Condition ed una
+con i monitor nativi di Java.
+
+*/
+
 package esercitazione9;
 
 import java.util.concurrent.locks.Lock;
@@ -18,11 +28,11 @@ public class SaloneLCFIFO extends Salone {
 	public SaloneLCFIFO(int c) { super(c); }
 
 	public boolean entra() throws InterruptedException {
-		System.out.println("Cliente #" + Thread.currentThread().getId() + " entra nel salone");
 		boolean servito = true;
 		l.lock();
 		try {
-			if (!clienteInPoltrona) siediInPoltrona();
+			System.out.println("Cliente #" + Thread.currentThread().getId() + " entra nel salone");
+			if (!clienteInPoltrona && !prossimo) siediInPoltrona();
 			else if (numClientiInAttesa < capienza) {
 				numClientiInAttesa++;
 				codaAttesa.offer(Thread.currentThread());

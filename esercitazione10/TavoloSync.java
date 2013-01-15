@@ -1,3 +1,11 @@
+/*
+
+Scrivere una soluzione con le Lock e Condition
+ed una con i monitor nativi di Java del
+problema dei fumatori di sigarette.
+
+*/
+
 package esercitazione10;
 
 public class TavoloSync extends Tavolo {

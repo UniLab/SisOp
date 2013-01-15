@@ -15,10 +15,10 @@ public class SaloneLC extends Salone {
 	public SaloneLC(int c) { super(c); }
 
 	public boolean entra() throws InterruptedException {
-		System.out.println("Cliente #" + Thread.currentThread().getId() + " entra nel salone");
 		boolean servito = true;
 		l.lock();
 		try {
+			System.out.println("Cliente #" + Thread.currentThread().getId() + " entra nel salone");
 			if (!clienteInPoltrona) siediInPoltrona();
 			else if (numClientiInAttesa < capienza) {
 				numClientiInAttesa++;

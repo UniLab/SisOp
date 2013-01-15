@@ -1,4 +1,4 @@
-package eseercitazione3;
+package esercitazione3;
 
 class RigaNTS extends Thread {
 	int[][] A; int r;
