@@ -1,6 +1,7 @@
 package appelli.ristorante;
 
 public class Ristorante {
+
 	public static final int numCamerieri = 10;
 	public static final int numLavaPiatti = 6;
 	public static final int numAsciugaPiatti = 3;
@@ -33,4 +34,5 @@ public class Ristorante {
 		for (int i = 0; i < numAsciugaPiatti; i++)
 			asciugaPiatti[i].start();
 	}
+
 }

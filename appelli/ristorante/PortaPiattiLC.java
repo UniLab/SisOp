@@ -5,6 +5,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.Condition;
 
 public class PortaPiattiLC extends PortaPiatti {
+
 	private Lock l = new ReentrantLock();
 	private Condition ciSonoPiatti = l.newCondition();
 	private Condition ciSonoPostiVuoti = l.newCondition();
@@ -13,31 +14,21 @@ public class PortaPiattiLC extends PortaPiatti {
 		super(numPosti, tipo);
 	}
 
-	public void put(int n) {
+	public void put(int n) throws InterruptedException {
+		l.lock();
 		try {
-			l.lock();
 			while (numPosti - numPiatti < n) ciSonoPostiVuoti.await();
 			numPiatti += n;
-			System.out.println(Thread.currentThread().toString() +
-				" ha posato " + n + " piatt" + (n > 1 ? "i" : "o") + ". " + tipo + " ne contiene " + numPiatti);
 			ciSonoPiatti.signalAll();
-		} catch (InterruptedException e) {
-		} finally {
-			l.unlock();
-		}
+		} finally { l.unlock(); }
 	}
 
-	public void get() {
+	public void get() throws InterruptedException {
+		l.lock();
 		try {
-			l.lock();
 			while (numPiatti == 0) ciSonoPiatti.await();
 			numPiatti--;
-			System.out.println(Thread.currentThread().toString() +
-				" ha prelevato un piatto. " + tipo + " ne contiene " + numPiatti);
 			ciSonoPostiVuoti.signal();
-		} catch (InterruptedException e) {
-		} finally {
-			l.unlock();
-		}
+		} finally { l.unlock(); }
 	}
 }

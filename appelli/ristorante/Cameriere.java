@@ -3,6 +3,7 @@ package appelli.ristorante;
 import java.util.concurrent.TimeUnit;
 
 public class Cameriere extends Thread {
+
 	private PortaPiatti contenitore;
 	public static final int TEMPO_RACCOLTA = 20;
 
@@ -16,12 +17,11 @@ public class Cameriere extends Thread {
 				raccolta();
 				contenitore.put(4);
 			}
-		} catch (InterruptedException e) {}
+		} catch (InterruptedException e) { }
 	}
 
 	private void raccolta() throws InterruptedException {
 		TimeUnit.SECONDS.sleep(TEMPO_RACCOLTA);
 	}
 
-	public String toString() { return "Cameriere #" + getId(); }
 }

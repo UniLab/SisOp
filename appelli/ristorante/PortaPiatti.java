@@ -1,6 +1,7 @@
 package appelli.ristorante;
 
 public abstract class PortaPiatti {
+
 	protected final int numPosti;
 	protected int numPiatti = 0;
 	public enum Tipo {Contenitore, Scolapiatti};
@@ -11,7 +12,8 @@ public abstract class PortaPiatti {
 		this.tipo = tipo;
 	}
 
-	public abstract void put(int n);
+	public abstract void put(int n) throws InterruptedException;
 
-	public abstract void get();
+	public abstract void get() throws InterruptedException;
+
 }
