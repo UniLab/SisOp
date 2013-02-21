@@ -1,4 +1,4 @@
-package appelli.aereoporto;
+package appelli.aeroporto;
 
 import java.util.concurrent.TimeUnit;
 
@@ -6,10 +6,10 @@ public class Navetta extends Thread {
 	
 	public static final int TEMPO_OPERAZIONI = 400;
 
-	private Aereoporto a;
+	private Aeroporto a;
 	private int n;
 
-	public Navetta(Aereoporto a, int n) {
+	public Navetta(Aeroporto a, int n) {
 		this.a = a;
 		this.n = n;
 	}

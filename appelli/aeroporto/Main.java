@@ -1,9 +1,9 @@
-package appelli.aereoporto;
+package appelli.aeroporto;
 
 public class Main {
 	public static void main(String[]args) {
 		int p = 10, q = 15, r = 30;
-		Aereoporto a = new AereoportoLC(p, q, r);
+		Aeroporto a = new AeroportoLC(p, q, r);
 		Navetta[] navette = new Navetta[q];
 		Aereo[] aerei = new Aereo[r];
 		for (int i = 0; i < q; i++) navette[i] = new Navetta(a, i);

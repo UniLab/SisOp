@@ -1,36 +1,31 @@
-package appelli.aereoporto;
+package appelli.aeroporto;
 
 import java.util.concurrent.TimeUnit;
 import java.util.Random;
 
 public class Aereo extends Thread {
 	
-	private Aereoporto a;
+	private Aeroporto a;
 	private Random r = new Random();
 	public static final int MIN_VOLO = 600;
 	public static final int MAX_VOLO = 900;
 	public static final int TEMPO_ATTERRAGGIO = 300;
 	public static final int TEMPO_DECOLLO = 300;
 
-	public Aereo(Aereoporto a) {
+	public Aereo(Aeroporto a) {
 		this.a = a;
 	}
 
 	public void run() {
-		int pista;
 		try {
 			while (true) {
 				vola();
-				pista = a.richiediAtterraggio();
-				System.out.println("Aereo #" + getId() + " inizia atterraggio sulla pista " + pista);
+				a.richiediAtterraggio();
 				atterra();
-				System.out.println("Aereo #" + getId() + " termina atterraggio sulla pista " + pista);
-				a.rilasciaPista(pista);
-				pista = a.attendiDecollo();
-				System.out.println("Aereo #" + getId() + " inizia decollo sulla pista " + pista);
+				a.rilasciaPista();
+				a.attendiDecollo();
 				decolla();
-				System.out.println("Aereo #" + getId() + " termina decollo sulla pista " + pista);
-				a.rilasciaPista(pista);
+				a.rilasciaPista();
 			}
 		} catch (InterruptedException e) { }
 	}
